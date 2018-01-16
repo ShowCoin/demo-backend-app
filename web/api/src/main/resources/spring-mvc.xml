@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="pageFormFilter" class="com.weipai.form.PageFormFilter" />
+
+    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="defaultContentType" value="application/json"/>
+        <property name="mediaTypes">
+            <map>
+                <entry key="json" value="application/json"/>
+            </map>
+        </property>
+    </bean>
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="contentNegotiationManager" ref="contentNegotiationManager"/>
+        <property name="viewResolvers">
+            <list>
+                <bean class="com.weipai.mapper.JsonViewResolver"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="agentInterceptor" class="com.weipai.interceptor.AgentInterceptor"/>
+    <bean id="headerInterceptor" class="com.weipai.interceptor.HeaderInterceptor"/>
+    <bean id="securityInterceptor" class="com.weipai.interceptor.SecurityInterceptor"/>
+    <bean id="apiMonitorInterceptor" class="com.weipai.interceptor.ApiMonitorInterceptor"/>
+    <bean id="userInterceptor" class="com.weipai.interceptor.UserInterceptor"/>
+    <bean id="authInterceptor" class="com.weipai.interceptor.AuthInterceptor"/>
+    <bean id="logInterceptor" class="com.weipai.interceptor.LogInterceptor"/>
+
+    <bean class="com.weipai.spring.CustomRequestMappingHandlerMapping">
+        <property name="interceptors">
+            <list>
+                <ref bean="logInterceptor"/>
+                <ref bean="apiMonitorInterceptor"/>
+                <ref bean="agentInterceptor"/>
+                <ref bean="headerInterceptor"/>
+                <ref bean="securityInterceptor"/>
+                <ref bean="authInterceptor"/>
+                <ref bean="userInterceptor"/>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="stringConverter"/>
+                <ref bean="jsonConverter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+       	<property name="objectMapper">    
+            <bean class="com.weipai.mapper.JsonMapper"/>
+        </property>
+    </bean>
+
+    <bean id="stringConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/html;charset=UTF-8</value>
+                <value>text/xml;charset=UTF-8</value>
+            </list>
+        </property>
+        <property name="writeAcceptCharset" value="false"/>
+    </bean>
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--unit byte, 8M-->
+        <property name="maxUploadSize" value="8388608"/>
+    </bean>
+
+</beans>
+
+
+
+
+
