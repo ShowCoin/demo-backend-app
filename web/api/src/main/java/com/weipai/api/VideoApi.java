@@ -484,26 +484,6 @@ public class VideoApi extends BaseApi {
             log.error(e.getMessage(), e);
         }
 
-        // TODO(hehao 16/5):根据现在的统计，我们在/play_video和/user_video_list
-        // 请求里都会发送PLAY统计，这样就存在重复计算的问题。由于目前的安卓版本，并
-        // 没有在播放时发送/play_video请求，所以修改如下：
-        // 只用/user_video_list的次数来统计播放次数，这里会存在进入播放页面，但是没有
-        // 自动播放时多统计了的问题。但是，需要等安卓端播放了视频时，调用/play_video
-        // 这个修复发版并覆盖绝大部分安装时，才能使用更准确的/play_video来统计。
-//		try {
-//			Map map = new HashMap();
-//			map.put("vid", vid);
-//			map.put("tid", videoView.getUser());
-//			map.put("action", STAT_ACTION.PLAY.toString());
-//			map.put("time", (int) (System.currentTimeMillis() / 1000));
-//			Producer.getInstance().sendData(KafkaProperties.statTopic,
-//					JacksonUtil.writeToJsonString(map));
-//		} catch (Exception e) {
-//			log.error(
-//					" --------- kafka message error ---------" + e.getMessage(),
-//					e);
-//		}
-
         resultMap.put("play_num", playNum);
 
         return success(resultMap);
